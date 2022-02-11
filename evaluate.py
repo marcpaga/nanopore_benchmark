@@ -8,101 +8,7 @@ import mappy
 import numpy as np
 import pandas as pd
 
-############################ FILE READING/MANAGING #############################
-
-def find_fast_files(top, maxdepth = 1):
-    """Find fastq or fasta files recursively
-    """
-    dirs, nondirs = [], []
-    for name in os.listdir(top):
-        (dirs if os.path.isdir(os.path.join(top, name)) else nondirs).append(name)
-        for nondir in nondirs:
-            if nondir.endswith('.fasta') or nondir.endswith('.fastq'):
-                yield os.path.join(top, nondir)
-    if maxdepth > 1:
-        for name in dirs:
-            for x in find_fast_files(os.path.join(top, name), maxdepth-1):
-                yield x
-
-def iter_fasta(fasta_file):
-    """Read a fasta file iteratively
-    """
-    c = 0
-    with open(fasta_file, 'r') as handle:
-        for line in handle:
-            if c == 0:
-                read_id = line[1:].strip('\n')
-                c += 1
-            elif c == 1:
-                seq = line.strip('\n')
-                c = 0
-                yield read_id, seq
-
-def read_fasta(fasta_file):
-    """Read a fasta file
-    """
-    fasta_dict = dict()
-    for k, v in iter_fasta(fasta_file):
-        fasta_dict[k] = v
-    return fasta_dict
-
-def iter_fastq(fastq_file):
-
-    c = 0
-    with open(fastq_file, 'r') as f:
-        for line in f:
-            if c == 0:
-                c += 1
-                read_id = line[1:].strip('\n')
-            elif c == 1:
-                c += 1
-                seq = line.strip('\n')
-            elif c == 2:
-                c += 1
-                direction = line.strip('\n')
-            elif c == 3:
-                c = 0
-                phredq = line.strip('\n')
-                if len(seq) != len(phredq):
-                    raise ValueError('{}: seq ({}) and phredq ({}) lenghts are different'.format(read_id, len(seq), len(phredq)))
-                yield read_id, (seq, direction, phredq)
-
-def read_fastq(fastq_file):
-    """Read a fastq file
-    """
-    
-    fastq_dict = dict()
-    for k, v in iter_fastq(fastq_file):
-        fastq_dict[k] = v
-                
-    return fastq_dict
-
-def read_fna(file):
-    """Read a fna file, like fasta but sequences are split by \n 
-    """
-    d = dict()
-    with open(file, 'r') as f:
-        for line in f:
-            if line.startswith('>'):
-                k = line.strip('\n')
-                d[k[1:]] = list()
-            else:
-                d[k[1:]].append(line.strip('\n'))
-                
-    for k, v in d.items():
-        d[k] = "".join(v)
-    return d
-
-def read_fast(fast_file):
-
-    if fast_file.endswith('.fastq'):
-        return read_fastq(fast_file)
-    if fast_file.endswith('.fasta'):
-        return read_fasta(fast_file)
-    if fast_file.endswith('.fna'):
-        return read_fna(fast_file)
-
-############################ FILE READING/MANAGING #############################
+from src.io import read_fast, find_files
 
 ############################ EVALUATE QUEUES ###################################
 
@@ -462,7 +368,9 @@ def eval_pair(ref, que, read_id, phredq = None, comment = None):
     len_que = len(que)
     if len_que == 0:
         result['len_basecalls'] = len_que
-        result['comment'] = 'no prediction'
+        result['comment'] = 'noprediction'
+        if comment is not None:
+            result['comment'] += '_'+str(comment)
         return result
 
     # if there is no correct alignment
@@ -472,7 +380,9 @@ def eval_pair(ref, que, read_id, phredq = None, comment = None):
             correct_match = True
             break
     if not correct_match:
-        result['comment'] = 'failed mapping'
+        result['comment'] = 'failedmapping'
+        if comment is not None:
+            result['comment'] += '_'+str(comment)
         return result
     
 
@@ -547,7 +457,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--basecalls-path", type=str, required=True, help='Path to a fasta or fastq file or dir to be searched')
     parser.add_argument("--references-path", type=str, required=True, help='Path to a fasta reference file')
-    parser.add_argument("--model-name", type=str, required=True, help='Name of the model being evaluated')
+    parser.add_argument("--model-name", type=str, help='Name of the model being evaluated')
     parser.add_argument("--output-file", type=str, help='csv output file', default = None)
     parser.add_argument("--depth", type=int, help='How deep to look for fastq or fasta files', default = 1)
     parser.add_argument("--processes", type=int, help='Number of parallel processes', default = 1)
@@ -559,7 +469,7 @@ if __name__ == "__main__":
     if os.path.isfile(args.basecalls_path):
         fast_files.append(os.path.abspath(args.basecalls_path))
     else:
-        for fast_file in find_fast_files(args.basecalls_path, args.depth):
+        for fast_file in find_files(args.basecalls_path, ['.fasta', '.fastq'], args.depth):
             fast_files.append(os.path.abspath(fast_file))
     fast_files = np.unique(fast_files)
 
