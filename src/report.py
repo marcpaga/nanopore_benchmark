@@ -4,15 +4,16 @@ import numpy as np
 import pandas as pd
 import matplotlib.cbook as cbook
 
-from constants import BASES, AUC_STEP
+from .constants import BASES, AUC_STEP
 
 class EvaluationReport():
 
-    def __init__(self, df, modelname, output_path = None):
+    def __init__(self, df, modelname, output_path = None, overwrite = False):
 
         self.df = self.calculate_rates(df)
         self.output_path = output_path
         self.modelname = modelname
+        self.overwrite = overwrite
 
     def calculate_rates(self, df):
 
@@ -73,7 +74,14 @@ class EvaluationReport():
         if self.output_path is None:
             return None
         else:
-            return df.to_csv(os.path.join(self.output_path, self.modelname + '_' + reportname + '.csv'), index=False, header = True)
+            ofile = os.path.join(self.output_path, self.modelname + '_' + reportname + '.csv')
+            if os.path.isfile(ofile):
+                if self.overwrite:
+                    os.remove(ofile)
+                else:
+                    raise FileExistsError('Output file ({0}) already exists'.format(ofile))
+            return df.to_csv(ofile, index=False, header = True)
+                
 
     def calculate_boxplot_stats(self, df, columns):
 
