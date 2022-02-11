@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from src.io import read_fast, find_files
+from src.constants import BASES
 
 ############################ EVALUATE QUEUES ###################################
 
@@ -77,7 +78,6 @@ def eval_pair_wrapper(reads_queue, writer_queue, tmp_dir, verbose):
 
 ###################### EVALUATION FUNCTIONS AND PARAMS #########################
 
-BASES = ['A', 'C', 'G', 'T']
 REPORT_COLUMNS = [
     'read_id', # id of the read
     'len_reference', # length of the reference
@@ -457,7 +457,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--basecalls-path", type=str, required=True, help='Path to a fasta or fastq file or dir to be searched')
     parser.add_argument("--references-path", type=str, required=True, help='Path to a fasta reference file')
-    parser.add_argument("--model-name", type=str, help='Name of the model being evaluated')
     parser.add_argument("--output-file", type=str, help='csv output file', default = None)
     parser.add_argument("--depth", type=int, help='How deep to look for fastq or fasta files', default = 1)
     parser.add_argument("--processes", type=int, help='Number of parallel processes', default = 1)
