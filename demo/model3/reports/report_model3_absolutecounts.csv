@@ -1,0 +1,2 @@
+model,total_bases_basecalled,total_bases_reference,total_bases_aligned,total_match_bases,total_mismatch_bases,total_insertion_bases,total_deletion_bases,total_homopolymer_bases_reference,total_homopolymer_bases_error
+model3,1906977,1915316,1963454,1770812,55673,57821,78964,88487,13504
