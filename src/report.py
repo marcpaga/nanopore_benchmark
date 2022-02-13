@@ -74,7 +74,7 @@ class EvaluationReport():
         if self.output_path is None:
             return None
         else:
-            ofile = os.path.join(self.output_path, self.modelname + '_' + reportname + '.csv')
+            ofile = os.path.join(self.output_path, 'report_' + self.modelname + '_' + reportname + '.csv')
             if os.path.isfile(ofile):
                 if self.overwrite:
                     os.remove(ofile)
