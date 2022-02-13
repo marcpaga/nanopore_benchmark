@@ -7,6 +7,7 @@ import argparse
 import mappy
 import numpy as np
 import pandas as pd
+from pandas.errors import EmptyDataError
 
 from src.io import read_fast, find_files
 from src.constants import BASES
@@ -21,10 +22,14 @@ def results_queue_writer(output_file, q):
             break
         else:
             df = pd.DataFrame(df, index=[0])
-        if not os.path.isfile(output_file):
-            df.to_csv(output_file, header=True, index=False)
-        else: # else it exists so append without writing the header
-            df.to_csv(output_file, mode='a', header=False, index=False)
+        header = True
+        with open(output_file, 'r') as f:
+            for line in f:
+                if not line.startswith('#'):
+                    header = False
+                    break
+
+        df.to_csv(output_file, mode='a', header=header, index=False)
             
 
 def eval_pair_wrapper(reads_queue, writer_queue, tmp_dir, verbose):
@@ -457,9 +462,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--basecalls-path", type=str, required=True, help='Path to a fasta or fastq file or dir to be searched')
     parser.add_argument("--references-path", type=str, required=True, help='Path to a fasta reference file')
+    parser.add_argument("--model-name", type=str, required=True, help='Name of the model')
     parser.add_argument("--output-file", type=str, help='csv output file', default = None)
     parser.add_argument("--depth", type=int, help='How deep to look for fastq or fasta files', default = 1)
-    parser.add_argument("--processes", type=int, help='Number of parallel processes', default = 1)
+    parser.add_argument("--processes", type=int, help='Number of parallel processes', default = 2)
     parser.add_argument("--verbose", action="store_true", help='Print read ids as they are being evaluated')
     args = parser.parse_args()
 
@@ -480,7 +486,7 @@ if __name__ == "__main__":
 
     # output file name
     if args.output_file is None:
-        output_file = os.path.join("/".join(fast_files[0].split('/')[:-1]), args.model_name+'_evaluation.csv')
+        output_file = os.path.join("/".join(fast_files[0].split('/')[:-1]), 'evaluation.csv')
     else:
         output_file = args.output_file
     assert output_file.endswith('.csv'), "output file must end with .csv"
@@ -489,9 +495,16 @@ if __name__ == "__main__":
     # check if output file exists to skip evaluated reads
     processed_ids = set()
     if os.path.isfile(output_file):
-        df = pd.read_csv(output_file, header = 0, index_col = False)
-        processed_ids = set(df['read_id'])
-        print('Output file already exists, {0} reads already evaluated'.format(len(processed_ids)))
+        try:
+            df = pd.read_csv(output_file, header = 0, index_col = False, comment = '#')
+            processed_ids = set(df['read_id'])
+            print('Output file already exists, {0} reads already evaluated'.format(len(processed_ids)))
+        except EmptyDataError:
+            pass
+    else:
+        with open(output_file, 'w') as f:
+            f.write('#'+args.model_name+'\n')
+
 
     # read all the reference sequences into memory
     print('Reading references: ' + args.references_path)
