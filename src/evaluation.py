@@ -1,4 +1,4 @@
-from constants import BASES
+from .constants import BASES
 import re
 import numpy as np
 
