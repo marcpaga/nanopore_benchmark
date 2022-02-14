@@ -87,6 +87,7 @@ if __name__ == "__main__":
     parser.add_argument("--depth", type=int, help='How deep to look for fastq or fasta files', default = 1)
     parser.add_argument("--processes", type=int, help='Number of parallel processes', default = 2)
     parser.add_argument("--verbose", action="store_true", help='Print read ids as they are being evaluated')
+    parser.add_argument("--overwrite", action='store_true', help='Overwrite existing output file')
     args = parser.parse_args()
 
     # get all the basecall files
@@ -111,16 +112,20 @@ if __name__ == "__main__":
         output_file = args.output_file
     assert output_file.endswith('.csv'), "output file must end with .csv"
 
-
     # check if output file exists to skip evaluated reads
     processed_ids = set()
     if os.path.isfile(output_file):
-        try:
-            df = pd.read_csv(output_file, header = 0, index_col = False, comment = '#')
-            processed_ids = set(df['read_id'])
-            print('Output file already exists, {0} reads already evaluated'.format(len(processed_ids)))
-        except EmptyDataError:
-            pass
+        if args.overwrite:
+            os.remove(output_file)
+            with open(output_file, 'w') as f:
+                f.write('#'+args.model_name+'\n')
+        else:
+            try:
+                df = pd.read_csv(output_file, header = 0, index_col = False, comment = '#')
+                processed_ids = set(df['read_id'])
+                print('Output file already exists, {0} reads already evaluated'.format(len(processed_ids)))
+            except EmptyDataError:
+                pass
     else:
         with open(output_file, 'w') as f:
             f.write('#'+args.model_name+'\n')
