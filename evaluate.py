@@ -474,7 +474,7 @@ if __name__ == "__main__":
     if os.path.isfile(args.basecalls_path):
         fast_files.append(os.path.abspath(args.basecalls_path))
     else:
-        for fast_file in find_files(args.basecalls_path, ['.fasta', '.fastq'], args.depth):
+        for fast_file in find_files(args.basecalls_path, endings = ['.fasta', '.fastq'], maxdepth = args.depth):
             fast_files.append(os.path.abspath(fast_file))
     fast_files = np.unique(fast_files)
 

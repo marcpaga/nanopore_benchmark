@@ -1,6 +1,6 @@
 import os
 
-def find_files(top, formats, maxdepth = 1):
+def find_files(top, starts = None, endings = None, maxdepth = 1):
     """Find files recursively
 
     Args:
@@ -8,19 +8,28 @@ def find_files(top, formats, maxdepth = 1):
         formats (str): string or list of strings with file formats (e.g '.csv')
         maxdepth (int): how deep to search for files
     """
-    if not isinstance(formats, list):
-        formats = [formats]
+    if not isinstance(endings, list):
+        endings = [endings]
+    if not isinstance(starts, list):
+        starts = [starts]
 
     dirs, nondirs = [], []
     for name in os.listdir(top):
         (dirs if os.path.isdir(os.path.join(top, name)) else nondirs).append(name)
         for nondir in nondirs:
-            for ending in formats:
+            for ending in endings:
+                if ending is None:
+                    continue
                 if nondir.endswith(ending):
+                    yield os.path.join(top, nondir)
+            for start in starts:
+                if start is None:
+                    continue
+                if nondir.startswith(start):
                     yield os.path.join(top, nondir)
     if maxdepth > 1:
         for name in dirs:
-            for x in find_files(os.path.join(top, name), formats, maxdepth-1):
+            for x in find_files(os.path.join(top, name), starts, endings, maxdepth-1):
                 yield x
 
 def iter_fasta(fasta_file):
