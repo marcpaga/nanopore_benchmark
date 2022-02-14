@@ -132,7 +132,7 @@ class EvaluationReport():
         reportname = 'readoutcomes'
 
         read_outcome_counts = dict(self.df['comment'].value_counts())
-        read_outcome_counts['model'] = 'model1'
+        read_outcome_counts['model'] = self.modelname
         read_outcome_counts = pd.DataFrame(read_outcome_counts, index = [0])
         cols = list(read_outcome_counts.columns)
         cols = [cols[-1]] + cols[:-1]
