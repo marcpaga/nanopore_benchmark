@@ -3,6 +3,8 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.cbook as cbook
+from scipy.optimize import brentq
+from sklearn.neighbors import KernelDensity
 
 from .constants import BASES, AUC_STEP
 
@@ -14,6 +16,10 @@ class EvaluationReport():
         self.output_path = output_path
         self.modelname = modelname
         self.overwrite = overwrite
+
+        if self.output_path:
+            with open(self.output_path, 'w') as f:
+                f.write('model,metric,value'+'\n')
 
     def calculate_rates(self, df):
 
@@ -68,6 +74,12 @@ class EvaluationReport():
         df['T_homo_error_rate'] = df['homo_T_errors']/df['homo_T_counts']
 
         return df
+
+    def write_general(self, d):
+        if self.output_path:
+            with open(self.output_path, 'a') as f:
+                for k, v in d.items():
+                    f.write(",".join([self.modelname, str(k), str(v)])+'\n')
 
     def to_csv(self, df, reportname):
 
@@ -172,10 +184,48 @@ class EvaluationReport():
         self.to_csv(events, reportname)
         return events
 
+    def calculate_phredq_overlap(self, subdf):
+        def findIntersection(fun1, fun2, lower, upper):
+            return brentq(lambda x : fun1(x) - fun2(x), lower, upper)
+
+        x = np.array(subdf['phred_mean_correct'])
+        y = np.array(subdf['phred_mean_error'])
+        x = x[~np.isnan(x)]
+        y = y[~np.isnan(y)]
+        x = np.sort(x)
+        y = np.sort(y)
+
+        kde_x = KernelDensity(kernel='gaussian', bandwidth=0.2).fit(x.reshape(-1, 1))
+        kde_y = KernelDensity(kernel='gaussian', bandwidth=0.2).fit(y.reshape(-1, 1))
+
+        funcA = lambda x: np.exp(kde_x.score_samples([np.array(x).reshape(1, -1)][0]))
+        funcB = lambda x: np.exp(kde_y.score_samples([np.array(x).reshape(1, -1)][0]))
+
+        mid_pos = findIntersection(funcA, funcB, np.mean(y), np.mean(x))
+        min_pos = np.min(x)
+        max_pos = np.max(y)
+
+        x = np.sort(x)
+        y = np.sort(y)
+        area_overlap = (
+            np.trapz(
+                np.exp(kde_x.score_samples(x.reshape(-1, 1)))[(x < mid_pos) & (x > min_pos)],
+                x[(x < mid_pos) & (x > min_pos)], 
+            ) +
+            np.trapz(
+                np.exp(kde_y.score_samples(y.reshape(-1, 1)))[(y > mid_pos) & (y < max_pos)],
+                y[(y > mid_pos) & (y < max_pos)], 
+            ) 
+        )
+        return {'Phredq_overlap': area_overlap}
+
     def phredq_distributions(self):
 
         reportname = 'phredq'
         subdf = self.df[self.df['comment'] == 'pass']
+        overlap = self.calculate_phredq_overlap(subdf)
+        self.write_general(overlap)
+
         cols = [
             'phred_mean_correct', 
             'phred_mean_error', 
@@ -286,6 +336,14 @@ class EvaluationReport():
         return signatures_df
 
     def calculate_auc(self):
+
+        def integrate(x, y):
+            sm = 0
+            for i in range(1, len(x)):
+                h = x[i] - x[i-1]
+                sm += h * (y[i-1] + y[i]) / 2
+
+            return sm
         
         reportname = 'auc'
         subdf = self.df[self.df['comment'] == 'pass']
@@ -305,6 +363,8 @@ class EvaluationReport():
             coords['fraction'].append(len(sub_df)/len(subdf))
             coords['match_rate'].append(np.mean(sub_df['match_rate']))
             coords['phred_mean'].append(np.min(sub_df['phred_mean']))
+
+        self.write_general({'auc': -integrate(coords['fraction'], coords['match_rate'])})
 
         coords = pd.DataFrame(coords)
         self.to_csv(coords, reportname)
