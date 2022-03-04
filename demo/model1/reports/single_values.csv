@@ -1,0 +1,3 @@
+model,metric,value
+model1,phredq_overlap,0.2302435487848387
+model1,auc,0.8941143879388898
