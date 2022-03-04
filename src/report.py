@@ -18,7 +18,7 @@ class EvaluationReport():
         self.overwrite = overwrite
 
         if self.output_path:
-            with open(self.output_path, 'w') as f:
+            with open(os.path.join(self.output_path, 'single_values.csv'), 'w') as f:
                 f.write('model,metric,value'+'\n')
 
     def calculate_rates(self, df):
@@ -77,7 +77,7 @@ class EvaluationReport():
 
     def write_general(self, d):
         if self.output_path:
-            with open(self.output_path, 'a') as f:
+            with open(os.path.join(self.output_path, 'single_values.csv'), 'a') as f:
                 for k, v in d.items():
                     f.write(",".join([self.modelname, str(k), str(v)])+'\n')
 
@@ -217,14 +217,14 @@ class EvaluationReport():
                 y[(y > mid_pos) & (y < max_pos)], 
             ) 
         )
-        return {'Phredq_overlap': area_overlap}
+        return area_overlap
 
     def phredq_distributions(self):
 
         reportname = 'phredq'
         subdf = self.df[self.df['comment'] == 'pass']
         overlap = self.calculate_phredq_overlap(subdf)
-        self.write_general(overlap)
+        self.write_general({"phredq_overlap":overlap})
 
         cols = [
             'phred_mean_correct', 
@@ -233,7 +233,7 @@ class EvaluationReport():
 
         events = self.calculate_boxplot_stats(subdf, cols)
         self.to_csv(events, reportname)
-        return events
+        return events, overlap
 
     def calculate_signatures(self):
 
@@ -364,10 +364,11 @@ class EvaluationReport():
             coords['match_rate'].append(np.mean(sub_df['match_rate']))
             coords['phred_mean'].append(np.min(sub_df['phred_mean']))
 
-        self.write_general({'auc': -integrate(coords['fraction'], coords['match_rate'])})
+        auc = -integrate(coords['fraction'], coords['match_rate'])
+        self.write_general({'auc': auc})
 
         coords = pd.DataFrame(coords)
         self.to_csv(coords, reportname)
 
-        return coords
+        return coords, auc
 
