@@ -17,17 +17,39 @@ def readoutcomes(df, output_path):
 
     fig, axes = plt.subplots(1, len(metrics), figsize=(3*len(metrics), 1.5*len(models_in_df)), sharey=True)
 
-    for i, (metric, ax) in enumerate(zip(metrics, axes)):
+    for metric, ax in zip(metrics, axes):
         for j, model in enumerate(models_in_df):
             plot_df = df[df['model'] == model]
-            axes[i].barh(y =j, width= plot_df[metric], color = 'grey', edgecolor = 'black')
+
+            try:
+                v = int(plot_df[metric].item())
+            except ValueError:
+                v = 0
+            v_perc = v/plot_df[metrics].sum(1).item()
+
+            ax.barh(
+                y = j, 
+                width= v, 
+                color = 'grey', 
+                edgecolor = 'black'
+            )
+            
+            ax.annotate(
+                text = str(v)+"\n({:.1%})".format(v_perc), 
+                xy = (plot_df[metric] - np.max(df[metric])*0.25, j), 
+                verticalalignment = 'center', 
+                horizontalalignment='left',
+                multialignment = 'center',
+            )
+
             if j == 0:
-                axes[i].set_title(metric)
+                ax.set_title(metric)
             
     axes[0].set_yticks(ticks = np.arange(0, len(set(df['model'])), 1))
     axes[0].set_yticklabels(labels = models_in_df)
 
-    fig.suptitle('Number of reads')
+    fig.suptitle('Basecalled reads failure rates')
+    fig.supxlabel('Number of reads')
     fig.tight_layout()
     plt.savefig(output_file) 
 
@@ -38,10 +60,10 @@ def eventrates(df, output_path):
 
     metrics = ['match_rate', 'mismatch_rate', 'insertion_rate', 'deletion_rate']
     metric_name_transformer = {
-        'match_rate': 'Match rate',
-        'mismatch_rate': 'Mismatch rate',
-        'insertion_rate': 'Insertion rate',
-        'deletion_rate': 'Deletion rate'
+        'match_rate': 'Match',
+        'mismatch_rate': 'Mismatch',
+        'insertion_rate': 'Insertion',
+        'deletion_rate': 'Deletion'
     }
 
     models_in_df = sorted(np.unique(df['model']).astype(str))[::-1]
@@ -53,18 +75,26 @@ def eventrates(df, output_path):
 
         for metric, ax in zip(metrics, axes):
             stats = {k:v for k, v in zip(subdf['stats'], subdf[metric])}
-            bp = ax.bxp([stats], positions = [i], showfliers = False, vert = False, widths = [0.6])
+            bp = ax.bxp(
+                [stats],
+                positions = [i], 
+                showfliers = False, 
+                vert = False, 
+                widths = [0.6], 
+                patch_artist = True
+            )
 
             if i == 0:
                 ax.set_xlabel(metric_name_transformer[metric])
                 
             for element in ['boxes', 'whiskers', 'fliers', 'means', 'medians', 'caps']:
                 plt.setp(bp[element], color='black',  linewidth=1.5)
-            plt.setp(bp['boxes'], color = 'black')
+            plt.setp(bp['boxes'], facecolor = '#ccc5b4')
 
     ax1.set_yticks(ticks = np.arange(0, len(set(df['model'])), 1))
     ax1.set_yticklabels(labels = models_in_df)
     fig.tight_layout()
+    fig.supxlabel('Alignment event rates')
     plt.savefig(output_file) 
 
 
@@ -72,36 +102,49 @@ def homopolymerrates(df, output_path):
 
     output_file = os.path.join(output_path, 'combined', 'homopolymerrates.pdf')
 
-    metrics = ['total_homo_error_rate', 'A_homo_error_rate', 'C_homo_error_rate', 'G_homo_error_rate', 'T_homo_error_rate']
+    metrics = [
+        'total_homo_error_rate', 
+        'A_homo_error_rate', 
+        'C_homo_error_rate', 
+        'G_homo_error_rate', 
+        'T_homo_error_rate'
+    ]
     metric_name_transformer = {
-        'total_homo_error_rate': 'Total homopolymer error rate',
-        'A_homo_error_rate': 'A homopolymer error rate',
-        'C_homo_error_rate': 'C homopolymer error rate',
-        'G_homo_error_rate': 'G homopolymer error rate',
-        'T_homo_error_rate': 'T homopolymer error rate'
+        'total_homo_error_rate': 'Total',
+        'A_homo_error_rate': 'A',
+        'C_homo_error_rate': 'C',
+        'G_homo_error_rate': 'G',
+        'T_homo_error_rate': 'T'
     }
     
     models_in_df = sorted(np.unique(df['model']).astype(str))[::-1]
-    fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(1, 5, figsize=(12.5, 1.5*len(models_in_df)), sharey=True)
-    axes = [ax1, ax2, ax3, ax4, ax5]
+    fig, axes = plt.subplots(1, 5, figsize=(12.5, 1.5*len(models_in_df)), sharey=True)
 
     for i, model in enumerate(models_in_df):
         subdf = df[df['model'] == model]
 
         for metric, ax in zip(metrics, axes):
             stats = {k:v for k, v in zip(subdf['stats'], subdf[metric])}
-            bp = ax.bxp([stats], positions = [i], showfliers = False, vert = False, widths = [0.6])
+            bp = ax.bxp(
+                [stats], 
+                positions = [i], 
+                showfliers = False, 
+                vert = False, 
+                widths = [0.6], 
+                patch_artist=True
+            )
 
             if i == 0:
                 ax.set_xlabel(metric_name_transformer[metric])
                 
             for element in ['boxes', 'whiskers', 'fliers', 'means', 'medians', 'caps']:
                 plt.setp(bp[element], color='black',  linewidth=1.5)
-            plt.setp(bp['boxes'], color = 'black')
+            plt.setp(bp['boxes'], facecolor = '#ccc5b4')
 
-    ax1.set_yticks(ticks = np.arange(0, len(set(df['model'])), 1))
-    ax1.set_yticklabels(labels = models_in_df)
+    axes[0].set_yticks(ticks = np.arange(0, len(set(df['model'])), 1))
+    axes[0].set_yticklabels(labels = models_in_df)
     fig.tight_layout()
+    fig.supxlabel('Homopolymer Error rates')
     plt.savefig(output_file) 
 
 def phredq(df, output_path):
@@ -128,7 +171,7 @@ def phredq(df, output_path):
     ax.set_xlabel('PhredQ Scores')
     ax.set_yticks(ticks = np.arange(1, len(set(df['model'])) + 1, 1))
     ax.set_yticklabels(labels = models_in_df)
-    handles, labels = plt.gca().get_legend_handles_labels()
+    handles, _ = plt.gca().get_legend_handles_labels()
     for c, n in zip(colorpalettetab10, ['Correct', 'Incorrect']):
         handles.extend([mpatches.Patch(facecolor=c, label=n, edgecolor = 'black')]) 
     plt.legend(handles=handles, edgecolor = 'black', bbox_to_anchor=(1.04,0.5), loc="center left", borderaxespad=0)
@@ -208,7 +251,7 @@ def auc(df, output_path):
         ax1.plot(model_df['fraction'], model_df['match_rate'], color = colorpalettetab10[j])
         ax2.plot(model_df['fraction'], model_df['phred_mean'], color = colorpalettetab10[j], linestyle='--')        
         
-    handles, labels = plt.gca().get_legend_handles_labels()
+    handles, _ = plt.gca().get_legend_handles_labels()
     for c, modelname in zip(colorpalettetab10, np.sort(np.unique(df['model']))):
         handles.extend([Line2D([0], [0], label= modelname + ' ('+ str(round(aucs[modelname], 3)) +')', color=c)]) 
     plt.legend(handles=handles, edgecolor = 'black', bbox_to_anchor=(1.2,0.5), loc="center left", borderaxespad=0)
@@ -219,7 +262,7 @@ def auc(df, output_path):
     for modelname in np.sort(np.unique(df['model'])):
         
         output_file = os.path.join(output_path, modelname, 'auc.pdf')
-        f, ax1 = plt.subplots(figsize=(8, 5))
+        _, ax1 = plt.subplots(figsize=(8, 5))
         model_df = df[df['model'] == modelname]
         auc = -integrate(model_df['fraction'], model_df['match_rate'])
 
