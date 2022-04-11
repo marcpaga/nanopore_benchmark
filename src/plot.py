@@ -30,7 +30,7 @@ def readoutcomes(df, output_path):
             ax.barh(
                 y = j, 
                 width= v, 
-                color = 'grey', 
+                color = '#ccc5b4', 
                 edgecolor = 'black'
             )
             
@@ -94,7 +94,7 @@ def eventrates(df, output_path):
     ax1.set_yticks(ticks = np.arange(0, len(set(df['model'])), 1))
     ax1.set_yticklabels(labels = models_in_df)
     fig.tight_layout()
-    fig.supxlabel('Alignment event rates')
+    fig.suptitle('Alignment event rates')
     plt.savefig(output_file) 
 
 
@@ -144,7 +144,7 @@ def homopolymerrates(df, output_path):
     axes[0].set_yticks(ticks = np.arange(0, len(set(df['model'])), 1))
     axes[0].set_yticklabels(labels = models_in_df)
     fig.tight_layout()
-    fig.supxlabel('Homopolymer Error rates')
+    fig.suptitle('Homopolymer Error rates')
     plt.savefig(output_file) 
 
 def phredq(df, output_path):
