@@ -93,8 +93,8 @@ def eventrates(df, output_path):
 
     ax1.set_yticks(ticks = np.arange(0, len(set(df['model'])), 1))
     ax1.set_yticklabels(labels = models_in_df)
-    fig.tight_layout()
     fig.suptitle('Alignment event rates')
+    fig.tight_layout()
     plt.savefig(output_file) 
 
 
@@ -143,8 +143,8 @@ def homopolymerrates(df, output_path):
 
     axes[0].set_yticks(ticks = np.arange(0, len(set(df['model'])), 1))
     axes[0].set_yticklabels(labels = models_in_df)
-    fig.tight_layout()
     fig.suptitle('Homopolymer Error rates')
+    fig.tight_layout()
     plt.savefig(output_file) 
 
 def phredq(df, output_path):
