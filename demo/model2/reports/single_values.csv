@@ -1,0 +1,14 @@
+model,metric,value
+model2,match_rate,0.9099203274569302
+model2,mismatch_rate,0.025416806862766282
+model2,insertion_rate,0.026042827464647433
+model2,deletion_rate,0.03850891029816238
+model2,homopolymer_errorrate_A,0.13782608695652174
+model2,homopolymer_errorrate_C,0.15272648272865522
+model2,homopolymer_errorrate_G,0.19329470198675497
+model2,homopolymer_errorrate_T,0.16127701982886009
+model2,pass,0.9
+model2,failedmapping,0.07
+model2,shortalignment,0.03
+model2,phredq_overlap,0.23599686239734521
+model2,auc,0.7937624833720267
