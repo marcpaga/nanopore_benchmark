@@ -1,4 +1,5 @@
 import os
+
 from matplotlib import pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -186,14 +187,13 @@ def signatures(df, output_path):
     for model in np.unique(df['model']):
         output_file = os.path.join(output_path, model, 'signatures.pdf')
 
-        signatures_df = df[df['model'] == model]
-
+        signatures_df = df[df['model'] == model].copy()
         signatures_df.loc[signatures_df['Context'] == 'NNN', 'Context'] = 'NZN'
         bases = ['A', 'C', 'G', 'T']
 
         f, axs = plt.subplots(1, 5, sharey=False, gridspec_kw={'width_ratios': [1, 1, 1, 1, 0.32]}, figsize =(15, 3))
         for i, b in enumerate(bases + ['Grouped']):
-            plot_df = signatures_df[signatures_df["Base"] == b]
+            plot_df = signatures_df[signatures_df["Base"] == b].copy()
             plot_df = plot_df[plot_df["Error"].isin(["Missmatch_A", "Missmatch_C", "Missmatch_G", "Missmatch_T", "Deletion", "Insertion"])]
             plot_df = plot_df.sort_values(['Error', 'Context'])
             plot_df.loc[plot_df['Context'] == 'NZN', 'Context'] = 'NNN'
