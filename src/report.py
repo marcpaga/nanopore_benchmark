@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 
 import numpy as np
 import pandas as pd
@@ -131,12 +132,31 @@ class EvaluationReport():
             'total_mismatch_bases': int(subdf['mismatches'].sum()),
             'total_insertion_bases': int(subdf['insertions'].sum()),
             'total_deletion_bases': int(subdf['deletions'].sum()),
-            'total_homopolymer_bases_reference': int(subdf['total_homo_counts'].sum()),
-            'total_homopolymer_bases_error': int(subdf['total_homo_errors'].sum()),
+            'total_homopolymer_bases_reference_A': int(subdf['homo_A_counts'].sum()),
+            'total_homopolymer_bases_reference_C': int(subdf['homo_C_counts'].sum()),
+            'total_homopolymer_bases_reference_G': int(subdf['homo_G_counts'].sum()),
+            'total_homopolymer_bases_reference_T': int(subdf['homo_T_counts'].sum()),
+            'total_homopolymer_bases_error_A': int(subdf['homo_A_errors'].sum()),
+            'total_homopolymer_bases_error_C': int(subdf['homo_C_errors'].sum()),
+            'total_homopolymer_bases_error_G': int(subdf['homo_G_errors'].sum()),
+            'total_homopolymer_bases_error_T': int(subdf['homo_T_errors'].sum()),
         }
+
+        single_values = {
+            'match_rate': simple_report['total_match_bases']/simple_report['total_bases_aligned'],
+            'mismatch_rate': simple_report['total_mismatch_bases']/simple_report['total_bases_aligned'],
+            'insertion_rate': simple_report['total_insertion_bases']/simple_report['total_bases_aligned'],
+            'deletion_rate': simple_report['total_deletion_bases']/simple_report['total_bases_aligned'],
+            'homopolymer_errorrate_A': simple_report['total_homopolymer_bases_error_A']/simple_report['total_homopolymer_bases_reference_A'],
+            'homopolymer_errorrate_C': simple_report['total_homopolymer_bases_error_C']/simple_report['total_homopolymer_bases_reference_C'],
+            'homopolymer_errorrate_G': simple_report['total_homopolymer_bases_error_G']/simple_report['total_homopolymer_bases_reference_G'],
+            'homopolymer_errorrate_T': simple_report['total_homopolymer_bases_error_T']/simple_report['total_homopolymer_bases_reference_T'],
+        }
+        self.write_general(single_values)
 
         simple_report = pd.DataFrame(simple_report, index = [0])
         self.to_csv(simple_report, reportname)
+
         return simple_report
 
     def read_outcome_counts(self):
@@ -144,6 +164,7 @@ class EvaluationReport():
         reportname = 'readoutcomes'
 
         read_outcome_counts = dict(self.df['comment'].value_counts())
+        single_values = deepcopy(read_outcome_counts)
         read_outcome_counts['model'] = self.modelname
         read_outcome_counts = pd.DataFrame(read_outcome_counts, index = [0])
         cols = list(read_outcome_counts.columns)
@@ -151,6 +172,18 @@ class EvaluationReport():
         read_outcome_counts = read_outcome_counts[cols]
 
         self.to_csv(read_outcome_counts, reportname)
+
+        total = 0
+        for v in single_values.values():
+            if not np.isnan(v):
+                total += v
+        for k, v in single_values.items():
+            if not np.isnan(v):
+                single_values[k] = v/total
+            else:
+                 single_values[k] = 0
+        self.write_general(single_values)
+
         return read_outcome_counts
 
     def event_rates(self):
