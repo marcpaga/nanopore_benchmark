@@ -39,6 +39,8 @@ If `.fasta` files are provided, but one wants to use the comment functionality o
 
 ### Report
 
+To create a report of the evaluation of your model based on the reference and basecalls do the following:
+
 ```
 source venv3/bin/activate
 
@@ -47,6 +49,19 @@ python3 report.py \
 --output-dir demo/model1/reports
 
 ```
+
+This will generate a bunch of report csv files in the output dir:
+- `absoultecounts`: this contains the counts across all reads for different metrics (matched bases, mismatches bases, homopolymer correct bases, etc.)
+- `auc`: this contains the values necessary to plot the AUC for the model. 
+    - `fraction`: top fraction of best reads according to phredq.
+    - `match_rate`: match rate of reads in that fraction.
+    - `phredq_mean`: average PhredQ score of reads in that fraction.
+- `event rates`: this contains the boxplot statistics for the main alignment events: match, mismatch, insertion and deletion.
+- `homopolymerrates`: this containts the boxplot statistics for the homopolymer error rates per base or all together.
+- `phredq`: this contains the boxplot statistics for the PhredQ scores of correctly and incorrectly basecalled bases.
+- `readoutcomes`: this contains the number of reads that are successfully evaluated or that had some sort of error.
+- `signatures`: this contains the rates and counts of different types of errors for each base in a 3-mer context. The 3-mer contexts are based on the basecalls, not the reference.
+- `singlevalues`: this contains single summary values across all metrics based on the absolute counts, the read outcomes and the PhredQ scores distributions.
 
 ### Plot
 
