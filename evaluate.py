@@ -146,7 +146,11 @@ if __name__ == "__main__":
         for read_id, basecalls in read_fast(basecalls_file).items():
             if read_id in processed_ids:
                 continue
-            reads_queue.put((read_id, references[read_id], basecalls))
+            try:
+                reads_queue.put((read_id, references[read_id], basecalls))
+            except KeyError:
+                print('Not found in references: ' + read_id)
+                continue
 
   
     with mp.Pool(processes=args.processes-1) as pool:
