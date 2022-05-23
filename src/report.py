@@ -18,8 +18,10 @@ class EvaluationReport():
         self.modelname = modelname
         self.overwrite = overwrite
 
+        self.singlevalues_file = os.path.join(self.output_path, 'report_' + modelname + '_singlevalues.csv')
+
         if self.output_path:
-            with open(os.path.join(self.output_path, 'single_values.csv'), 'w') as f:
+            with open(self.singlevalues_file, 'w') as f:
                 f.write('model,metric,value'+'\n')
 
     def calculate_rates(self, df):
@@ -78,7 +80,7 @@ class EvaluationReport():
 
     def write_general(self, d):
         if self.output_path:
-            with open(os.path.join(self.output_path, 'single_values.csv'), 'a') as f:
+            with open(self.singlevalues_file, 'a') as f:
                 for k, v in d.items():
                     f.write(",".join([self.modelname, str(k), str(v)])+'\n')
 
@@ -224,6 +226,9 @@ class EvaluationReport():
         x = np.array(subdf['phred_mean_correct'])
         y = np.array(subdf['phred_mean_error'])
         x = x[~np.isnan(x)]
+        if len(x) == 0:
+            return np.nan
+
         y = y[~np.isnan(y)]
         x = np.sort(x)
         y = np.sort(y)
@@ -258,6 +263,10 @@ class EvaluationReport():
         subdf = self.df[self.df['comment'] == 'pass']
         overlap = self.calculate_phredq_overlap(subdf)
         self.write_general({"phredq_overlap":overlap})
+
+        # no phredq scores
+        if np.isnan(overlap):
+            return None, overlap
 
         cols = [
             'phred_mean_correct', 
