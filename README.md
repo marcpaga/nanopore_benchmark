@@ -60,3 +60,15 @@ python3 plot.py \
 --depth 3
 
 ```
+
+## Data download
+
+To download the data check the bash scripts in `./download`.
+
+To download all the data do `bash download_all.sh OUTPUTDIR`, otherwise use one of the other three scripts to download specific datasets: `download_wick.sh` (bacterial data), `download_verm.sh` (lambda phage), `download_jain.sh` (human data). NOTE: the lambda phage data from `download_verm.sh` has not been uploaded yet.
+
+WARNING: This is a large data download, about 1TB in disk space.
+
+## Todo
+
+- Upload lambda phage data 

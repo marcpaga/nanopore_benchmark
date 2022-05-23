@@ -1,0 +1,3 @@
+http://s3.amazonaws.com/nanopore-human-wgs/rel6/MultiFast5Tars/FAF04090-3842965088_Multi_Fast5.tar  http://s3.amazonaws.com/nanopore-human-wgs/rel6/FASTQTars/FAF04090-3842965088_Multi.tar
+http://s3.amazonaws.com/nanopore-human-wgs/rel6/MultiFast5Tars/FAF09968-3439856925_Multi_Fast5.tar  http://s3.amazonaws.com/nanopore-human-wgs/rel6/FASTQTars/FAF09968-3439856925_Multi.tar
+http://s3.amazonaws.com/nanopore-human-wgs/rel6/MultiFast5Tars/FAB42828-288548394_Multi_Fast5.tar   http://s3.amazonaws.com/nanopore-human-wgs/rel6/FASTQTars/FAB42828-288548394_Multi.tar
