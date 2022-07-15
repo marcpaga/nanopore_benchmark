@@ -84,6 +84,10 @@ To download all the data do `bash download_all.sh OUTPUTDIR`, otherwise use one 
 
 WARNING: This is a large data download, about 1TB in disk space.
 
+## Dataset tasks
+
+Benchmarking tasks are divided between `global`, `human` and `cross-species`. Each task has its own set of data that can be used for training and testing. Lists with the reads that can be used for train and testing can be found in `static/tasks`.
+
 ## Todo
 
 - Upload lambda phage data 
