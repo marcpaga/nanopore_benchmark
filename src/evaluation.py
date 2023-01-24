@@ -198,7 +198,7 @@ def error_profile(align_arr):
     
     return mut_dict
 
-def homopolymer_errors(align_arr):
+def homopolymer_errors(align_arr, homopolymer_min_length):
 
     result = dict()
     homo_counts = dict()
@@ -214,9 +214,9 @@ def homopolymer_errors(align_arr):
         for t, st, l in zip(*sections):
             if not t:
                 continue
-            if l < 5:
+            if l < homopolymer_min_length:
                 continue
-            if np.sum(align_arr[0, st:st+l] == b) < 5:
+            if np.sum(align_arr[0, st:st+l] == b) < homopolymer_min_length:
                 continue
             h_arr = align_arr[:, st:st+l]
             for j in range(h_arr.shape[1]):
@@ -270,19 +270,23 @@ def eval_phredq_scores(align_arr):
     return result
 
 
-def eval_pair(ref, que, read_id, phredq = None, comment = None):
+def eval_pair(ref, que, read_id, homopolymer_min_length = 5, phredq = None, comment = None):
     """Align two sequences and evaluate the alignment
     
     Args:
         ref (str): reference sequence or aligner if using minimap2
         que (str): predicted sequence
         read_id (str): uuid of the read
+        homopolymer_min_length (int): minimum length of consecutive bases that to consider an homopolymer
         phredq (str): string with predq symbols
         comment (str): comment in the direction line of a fastq file
         
     Returns:
         results (dict): dictionary with metrics and long confusion matrix
     """
+
+    if homopolymer_min_length < 2:
+        raise ValueError('Homopolymer length must be at least 2')
 
     result = dict()
     for k in REPORT_COLUMNS:
@@ -360,7 +364,7 @@ def eval_pair(ref, que, read_id, phredq = None, comment = None):
     
     # count for each base the amount of bases in homopolymers
     # and how many errors in these regions
-    homopolymer_results = homopolymer_errors(local_arr)
+    homopolymer_results = homopolymer_errors(local_arr, homopolymer_min_length = homopolymer_min_length)
     result = {**result, **homopolymer_results}
 
     # calculate mean phredq scores for correct and incorrect bases

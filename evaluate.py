@@ -29,7 +29,7 @@ def results_queue_writer(output_file, q):
         df.to_csv(output_file, mode='a', header=header, index=False)
             
 
-def eval_pair_wrapper(reads_queue, writer_queue, tmp_dir, verbose):
+def eval_pair_wrapper(reads_queue, writer_queue, tmp_dir, homopolymer_min_length, verbose):
     """Wrapper evaluate a prediction in the queue
     Args:
         references (dict): dictionary with reference sequences
@@ -66,6 +66,7 @@ def eval_pair_wrapper(reads_queue, writer_queue, tmp_dir, verbose):
             ref = ref, 
             que = pred, 
             read_id = read_id, 
+            homopolymer_min_length = homopolymer_min_length,
             phredq = phredq, 
             comment = comment,
         )
@@ -83,6 +84,7 @@ if __name__ == "__main__":
     parser.add_argument("--basecalls-path", type=str, required=True, help='Path to a fasta or fastq file or dir to be searched')
     parser.add_argument("--references-path", type=str, required=True, help='Path to a fasta reference file')
     parser.add_argument("--model-name", type=str, required=True, help='Name of the model')
+    parser.add_argument("--homopolymer-length", type=int, default = 5, help='Minimum length of same consecutive bases to be considered a homopolymer')
     parser.add_argument("--output-file", type=str, help='csv output file', default = None)
     parser.add_argument("--depth", type=int, help='How deep to look for fastq or fasta files', default = 1)
     parser.add_argument("--processes", type=int, help='Number of parallel processes', default = 2)
@@ -155,7 +157,7 @@ if __name__ == "__main__":
   
     with mp.Pool(processes=args.processes-1) as pool:
        
-       multiple_results = [pool.apply_async(eval_pair_wrapper, (reads_queue, writer_queue, tmp_path, args.verbose)) for _ in range(args.processes-1)]
+       multiple_results = [pool.apply_async(eval_pair_wrapper, (reads_queue, writer_queue, tmp_path, args.homopolymer_length, args.verbose)) for _ in range(args.processes-1)]
        results = [res.get() for res in multiple_results]
                     
     writer_queue.put('kill')
