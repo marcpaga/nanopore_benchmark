@@ -1,1 +1,1 @@
-inhouse_data    Lambda_phage
+https://sra-pub-src-2.s3.amazonaws.com/SRR23197167/single_fast5_lambdaphage.tar.1    Lambda_phage
