@@ -1,5 +1,17 @@
 # Nanopore Benchmark for Basecallers
 
+This repository contains download links to several Nanopore sequencing (R9.4.1) datasets that can be used for benchmarking basecallers. It also contains code to evaluate the basecalls with the reference sequences to benchmark the accuracy and performance of the basecallers. 
+
+**Who is this for?**
+- You work on the development of nanopore sequencing basecallers
+- You want to compare basecallers on read-level accuracy
+- You want to use several evaluation metrics (per base accuracy, error profiles, homopolymer error rates, etc.)
+- You want a defined training and testing datasets
+
+These datasets and evaluation metrics have been used in our benchmark of the most recent basecalling neural network architectures: https://www.biorxiv.org/content/10.1101/2022.05.17.492272v2. If you want to compare your model against these models; you can use the same datasets (train/test splits) and the same metrics and forget about having to re-implement/train the already evaluated models.
+
+For information regarind the architectures evaluated please see: https://github.com/marcpaga/basecalling_architectures
+
 ## Installation
 
 ```
@@ -80,7 +92,7 @@ python3 plot.py \
 
 To download the data check the bash scripts in `./download`.
 
-To download all the data do `bash download_all.sh OUTPUTDIR`, otherwise use one of the other three scripts to download specific datasets: `download_wick.sh` (bacterial data), `download_verm.sh` (lambda phage), `download_jain.sh` (human data). NOTE: the lambda phage data from `download_verm.sh` has not been uploaded yet.
+To download all the data do `bash download_all.sh OUTPUTDIR`, otherwise use one of the other three scripts to download specific datasets: `download_wick.sh` (bacterial data), `download_verm.sh` (lambda phage), `download_jain.sh` (human data). 
 
 WARNING: This is a large data download, about 1TB in disk space.
 
@@ -88,6 +100,8 @@ WARNING: This is a large data download, about 1TB in disk space.
 
 Benchmarking tasks are divided between `global`, `human` and `cross-species`. Each task has its own set of data that can be used for training and testing. Lists with the reads that can be used for train and testing can be found in `static/tasks`.
 
-## Todo
+The idea of dataset tasks are to evaluate the models in difference scenarios:
 
-- Upload lambda phage data 
+- The `global` task evaluates the performance of a general-purpose model by training and testing the model using data from all available species. In this task, models have access to most data. 
+- The `human` task  evaluates the performance of a human specialized model by training and testing exclusively on human data. 
+- The `cross-species` task evaluates the performance of a trained model on never before seen species. This allows us to evaluate the robustness of the model to overfit on genomic features from the training set, such as k-mer distribution or base modifications. This is achieved by training using a subset of bacterial species and testing on data from all species.
