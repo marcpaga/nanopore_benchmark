@@ -27,12 +27,27 @@ $ source venv3/bin/activate
 
 ### Evaluation
 
+#### If you have a reference for each read individually
+
 ```
 source venv3/bin/activate
 
 python3 evaluate.py \
 --basecalls-path demo/model1 \
 --references-path demo/reference.fasta \
+--model-name model1
+
+# output -> data/model1/model1_evaluation.csv
+```
+
+#### If you use a reference genome as truth
+
+```
+source venv3/bin/activate
+
+python3 evaluate_referencegenome.py \
+--basecalls-path demo/model1 \
+--references-path REF_GENOME.fna \
 --model-name model1
 
 # output -> data/model1/model1_evaluation.csv

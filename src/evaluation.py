@@ -270,7 +270,7 @@ def eval_phredq_scores(align_arr):
     return result
 
 
-def eval_pair(ref, que, read_id, homopolymer_min_length = 5, phredq = None, comment = None):
+def eval_pair(ref, que, read_id, homopolymer_min_length = 5, phredq = None, comment = None, reference_genome = False):
     """Align two sequences and evaluate the alignment
     
     Args:
@@ -280,6 +280,7 @@ def eval_pair(ref, que, read_id, homopolymer_min_length = 5, phredq = None, comm
         homopolymer_min_length (int): minimum length of consecutive bases that to consider an homopolymer
         phredq (str): string with predq symbols
         comment (str): comment in the direction line of a fastq file
+        reference_genome (bool): if the ref contains an aligner to a reference genome and not the true sequence of a read
         
     Returns:
         results (dict): dictionary with metrics and long confusion matrix
@@ -302,10 +303,11 @@ def eval_pair(ref, que, read_id, homopolymer_min_length = 5, phredq = None, comm
             result['comment'] += '_'+str(comment)
         return result
 
+
     # if there is no correct alignment
     correct_match = False
     for alignment in ref.map(seq = que):
-        if read_id == alignment.ctg:
+        if reference_genome or read_id == alignment.ctg:
             correct_match = True
             break
     if not correct_match:
