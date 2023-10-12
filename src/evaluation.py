@@ -322,7 +322,12 @@ def eval_pair(ref, que, read_id, homopolymer_min_length = 5, phredq = None, comm
     que_nd = alignment.q_en + 1
     ref_st = alignment.r_st
     ref_nd = alignment.r_en + 1
-    len_ref = len(ref.seq(read_id))
+    if reference_genome:
+        len_ref = abs(ref_nd - ref_st)
+        truth_seq = ref.seq(alignment.ctg, start=ref_st, end=ref_nd)
+    else:
+        len_ref = len(ref.seq(read_id))
+        truth_seq = ref.seq(read_id)[ref_st:ref_nd]
     
     long_cigar, _, _ = elongate_cigar(alignment.cigar_str)
 
@@ -331,7 +336,7 @@ def eval_pair(ref, que, read_id, homopolymer_min_length = 5, phredq = None, comm
 
     local_arr = make_align_arr(
         long_cigar = long_cigar, 
-        truth_seq = ref.seq(read_id)[ref_st:ref_nd], 
+        truth_seq = truth_seq, 
         pred_seq = que[que_st:que_nd], 
         phredq = phredq
     )
