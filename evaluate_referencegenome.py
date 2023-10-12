@@ -76,7 +76,7 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
     parser.add_argument("--basecalls-path", type=str, required=True, help='Path to a fasta or fastq file or dir to be searched')
-    parser.add_argument("--references-path", type=str, required=True, help='Path to a fasta reference file')
+    parser.add_argument("--reference-path", type=str, required=True, help='Path to a fasta reference file')
     parser.add_argument("--model-name", type=str, required=True, help='Name of the model')
     parser.add_argument("--homopolymer-length", type=int, default = 5, help='Minimum length of same consecutive bases to be considered a homopolymer')
     parser.add_argument("--output-file", type=str, help='csv output file', default = None)
