@@ -363,6 +363,8 @@ def eval_pair(ref, que, read_id, homopolymer_min_length = 5, phredq = None, comm
     local_arr = local_arr[:, local_st:local[-1]+1]
 
     n_bases = truth_seq.upper().count('N')
+    if n_bases > 0:
+        comment = 'nbases'
     
     # report results on length and alignment
     result['len_reference'] = len_ref - n_bases
