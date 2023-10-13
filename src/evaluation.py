@@ -193,6 +193,8 @@ def error_profile(align_arr):
         nd = pos[i+1:][np.where(nogaps[i+1:])[0]][0]
 
         code = align_arr[2, st] + align_arr[2, i] + '>' + align_arr[0, i] + align_arr[2, nd]
+        if 'N' in code:
+            continue
 
         mut_dict[code] += 1
     
@@ -247,6 +249,9 @@ def eval_phredq_scores(align_arr):
         align_symbol = align_arr[1, i]
         
         if phred_symbol == ' ':
+            continue
+
+        if align_arr[0, i] == 'N':
             continue
         
         score = ord(phred_symbol) - 33
@@ -356,9 +361,11 @@ def eval_pair(ref, que, read_id, homopolymer_min_length = 5, phredq = None, comm
     ref_st += local_st
     ref_nd -= local_nd
     local_arr = local_arr[:, local_st:local[-1]+1]
+
+    n_bases = truth_seq.upper().count('N')
     
     # report results on length and alignment
-    result['len_reference'] = len_ref
+    result['len_reference'] = len_ref - n_bases
     result['len_basecalls'] = len_que
     result['ref_start'] = ref_st
     result['ref_end'] = ref_nd
