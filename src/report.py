@@ -239,7 +239,7 @@ class EvaluationReport():
         funcA = lambda x: np.exp(kde_x.score_samples([np.array(x).reshape(1, -1)][0]))
         funcB = lambda x: np.exp(kde_y.score_samples([np.array(x).reshape(1, -1)][0]))
 
-        mid_pos = findIntersection(funcA, funcB, np.mean(y), np.mean(x))
+        mid_pos = findIntersection(funcA, funcB, 0, 60)
         min_pos = np.min(x)
         max_pos = np.max(y)
 
