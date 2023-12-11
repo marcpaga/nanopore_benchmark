@@ -47,7 +47,7 @@ source venv3/bin/activate
 
 python3 evaluate_referencegenome.py \
 --basecalls-path demo/model1 \
---references-path REF_GENOME.fna \
+--reference-path REF_GENOME.fna \
 --model-name model1
 
 # output -> data/model1/model1_evaluation.csv
