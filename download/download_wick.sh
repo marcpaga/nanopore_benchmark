@@ -80,7 +80,7 @@ while IFS= read -r line || [[ -n $line  ]]; do
     fi
 
     run_dir="${output_dir}/${spe}"
-    mkdir -p ${run_dir} "${run_dir}/fast5" "${run_dir}/fastq" "${run_dir}/tmp"
+    mkdir -p ${run_dir} "${run_dir}/fast5" "${run_dir}/tmp"
 
     if [ ! -f "${run_dir}/read_references.fasta" ]
     then

@@ -59,6 +59,8 @@ while IFS= read -r line || [[ -n $line  ]]; do
     then
         echo "Decompressing fastq data for run ${runid}"
         tar -xf "${tmp_dir}/${runid}_fastq.tar" -C "${run_dir}/fastq"
+        # Decompress (.fastq).gz in-place
+        find "${run_dir}/fastq" -name "*.gz" -exec gunzip {} \;
     fi
 
     if [ -z "$(ls -A ${fast5_dir})" ]
