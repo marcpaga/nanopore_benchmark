@@ -4,6 +4,8 @@
 # usage:
 # bash download_all.sh OUTPUT_DIR
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
 # make the output dir if does not exists
 if [ ! -d $1 ]
 then
@@ -12,6 +14,7 @@ else
      echo "Download directory exists"
 fi
 
-source download_jain.sh "$1/jain"
-source download_verm.sh "$1/verm"
-source download_wick.sh "$1/wick"
+source "${SCRIPT_DIR}/download_jain.sh" "$1/jain"
+source "${SCRIPT_DIR}/download_verm.sh" "$1/verm"
+source "${SCRIPT_DIR}/download_wick.sh" "$1/wick"
+
