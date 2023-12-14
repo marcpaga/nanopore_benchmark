@@ -20,18 +20,18 @@ mkdir -p $genomes_dir
 while IFS= read -r line || [[ -n $line  ]]; do
     if [ ! -f "${tmp_dir}/reference.fasta.gz" ]
     then
-        echo "Downloading reference data"
+        echo "Downloading Homo sapiens reference data"
         wget $line -O "${tmp_dir}/reference.fasta.gz"
     fi
 
     if [ ! -f "${genomes_dir}/Homo_sapiens.fna" ]
     then
-        echo "Decompressing reference data"
+        echo "Decompressing Homo sapiens reference data"
         gunzip -c "${tmp_dir}/reference.fasta.gz" > "${genomes_dir}/Homo_sapiens.fna"
     fi 
 done < $references_links
 
-
+echo "Downloading Homo sapiens data"
 # download the data
 while IFS= read -r line || [[ -n $line  ]]; do
     files=($line)
@@ -40,13 +40,13 @@ while IFS= read -r line || [[ -n $line  ]]; do
     
     if [ ! -f "${tmp_dir}/${runid}_fastq.tar" ]
     then
-        echo "Downloading basecalls data"
+        echo "Downloading basecalls data for run ${runid}"
         wget ${files[1]} -O "${tmp_dir}/${runid}_fastq.tar"
     fi
 
     if [ ! -f "${tmp_dir}/${runid}_fast5.tar" ]
     then
-        echo "Downloading fast5 data"
+        echo "Downloading fast5 data for run ${runid}"
         wget ${files[0]} -O "${tmp_dir}/${runid}_fast5.tar"
     fi
 
@@ -57,15 +57,19 @@ while IFS= read -r line || [[ -n $line  ]]; do
 
     if [ -z "$(ls -A ${fastq_dir})" ]
     then
-        echo "Decompressing fastq data"
+        echo "Decompressing fastq data for run ${runid}"
         tar -xf "${tmp_dir}/${runid}_fastq.tar" -C "${run_dir}/fastq"
+        # Decompress (.fastq).gz in-place
+        find "${run_dir}/fastq" -name "*.gz" -exec gunzip {} \;
     fi
 
     if [ -z "$(ls -A ${fast5_dir})" ]
     then
-        echo "Decompressing fast5 data"
+        echo "Decompressing fast5 data for run ${runid}"
         tar -xf "${tmp_dir}/${runid}_fast5.tar" -C "${run_dir}/fast5"
     fi
 
 done < $data_links
+
+echo "Done"
 
