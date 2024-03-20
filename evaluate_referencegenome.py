@@ -95,12 +95,6 @@ if __name__ == "__main__":
             fast_files.append(os.path.abspath(fast_file))
     fast_files = np.unique(fast_files)
 
-    # create a tmp dir to write tmp files
-    tmp_path = os.path.join("/".join(fast_files[0].split('/')[:-1]), 'tmp')
-    if os.path.exists(tmp_path):
-        shutil.rmtree(tmp_path)
-    os.makedirs(tmp_path)
-
     # output file name
     if args.output_file is None:
         output_file = os.path.join("/".join(fast_files[0].split('/')[:-1]), 'evaluation.csv')
