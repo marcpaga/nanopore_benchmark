@@ -8,7 +8,7 @@ This repository contains download links to several Nanopore sequencing (R9.4.1) 
 - You want to use several evaluation metrics (per base accuracy, error profiles, homopolymer error rates, etc.)
 - You want a defined training and testing datasets
 
-These datasets and evaluation metrics have been used in our benchmark of the most recent basecalling neural network architectures: https://www.biorxiv.org/content/10.1101/2022.05.17.492272v2. If you want to compare your model against these models; you can use the same datasets (train/test splits) and the same metrics and forget about having to re-implement/train the already evaluated models.
+These datasets and evaluation metrics have been used in our benchmark of the most recent basecalling neural network architectures: https://link.springer.com/article/10.1186/s13059-023-02903-2. If you want to compare your model against these models; you can use the same datasets (train/test splits) and the same metrics and forget about having to re-implement/train the already evaluated models.
 
 For information regarind the architectures evaluated please see: https://github.com/marcpaga/basecalling_architectures
 
@@ -120,3 +120,10 @@ The idea of dataset tasks are to evaluate the models in difference scenarios:
 - The `global` task evaluates the performance of a general-purpose model by training and testing the model using data from all available species. In this task, models have access to most data. 
 - The `human` task  evaluates the performance of a human specialized model by training and testing exclusively on human data. 
 - The `cross-species` task evaluates the performance of a trained model on never before seen species. This allows us to evaluate the robustness of the model to overfit on genomic features from the training set, such as k-mer distribution or base modifications. This is achieved by training using a subset of bacterial species and testing on data from all species.
+
+# Citation
+
+If you use this work, please cite our paper:
+```
+Pagès-Gallego, M., de Ridder, J. Comprehensive benchmark and architectural analysis of deep learning models for nanopore sequencing basecalling. Genome Biol 24, 71 (2023). https://doi.org/10.1186/s13059-023-02903-2
+```
